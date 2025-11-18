@@ -1,11 +1,13 @@
 package org.galaxy.morph.representation;
 
+import org.jetbrains.annotations.Nullable;
+
 public class CommentedResult<T> {
 
     private final T value;
     private final ObjectComments comments;
 
-    public CommentedResult(T value, ObjectComments comments) {
+    public CommentedResult(@Nullable T value, @Nullable ObjectComments comments) {
         this.value = value;
         this.comments = comments;
     }
@@ -14,7 +16,7 @@ public class CommentedResult<T> {
         return value;
     }
 
-    public ObjectComments getComments() {
+    public @Nullable ObjectComments getComments() {
         return comments;
     }
 }

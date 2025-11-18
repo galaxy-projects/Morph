@@ -26,8 +26,9 @@ public class Registry {
         return CACHE.get(type);
     }
 
-    public static void setInstance(@NotNull Object instance, @NotNull ObjectComments comments) {
-        INSTANCE_CACHE.get(instance.getClass()).put(instance, comments);
+    public static void setInstance(@NotNull Object instance, @Nullable ObjectComments comments) {
+        if (comments != null)
+            INSTANCE_CACHE.get(instance.getClass()).put(instance, comments);
     }
 
     public static @Nullable ObjectComments getInstance(@NotNull Object instance) {

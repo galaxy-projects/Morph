@@ -10,7 +10,6 @@ import org.galaxy.morph.source.Source;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.OutputStream;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,7 +31,6 @@ class Util {
     }
 
     static @NotNull Stream<InputSource> getAvailableSources(@NotNull List<ConfigSourceResolver> resolvers,
-                                                            @NotNull Path workingDirectory,
                                                             @NotNull ConfigRepresentation representation) {
         Set<String> supportedExtensions = representation.getSupportedExtensions();
 

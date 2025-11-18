@@ -78,8 +78,9 @@ public class MorphBuilder {
             throw new IllegalArgumentException("No Config source resolvers found");
 
         resolvers.forEach(resolver -> resolver.setup(workingDirectory));
+        providers.forEach(provider -> provider.setup(indentation));
 
-        return new Morph(workingDirectory, defaultCommentStrategy, indentation, providers, resolvers);
+        return new Morph(defaultCommentStrategy, providers, resolvers);
     }
 
     private static <T> List<T> loadServices(Class<T> type) {

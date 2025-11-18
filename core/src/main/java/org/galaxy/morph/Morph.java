@@ -11,34 +11,27 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class Morph {
 
 
-    private final @NotNull Path workingDirectory;
     private final @NotNull CommentMergeStrategy defaultCommentStrategy;
-    private final int indentation;
     private final @NotNull List<@NotNull ConfigProvider> providers;
     private final @NotNull List<@NotNull ConfigSourceResolver> resolvers;
 
-    Morph(@NotNull Path workingDirectory,
-          @NotNull CommentMergeStrategy defaultCommentStrategy,
-          int indentation,
+    Morph(@NotNull CommentMergeStrategy defaultCommentStrategy,
           @NotNull List<@NotNull ConfigProvider> providers,
           @NotNull List<@NotNull ConfigSourceResolver> resolvers) {
-        this.workingDirectory = workingDirectory;
         this.defaultCommentStrategy = defaultCommentStrategy;
-        this.indentation = indentation;
         this.providers = providers;
         this.resolvers = resolvers;
     }
 
     public <T> @NotNull T load(@NotNull Class<T> type) {
         ConfigRepresentation representation = Registry.get(type);
-        Stream<InputSource> availableSources = Util.getAvailableSources(resolvers, workingDirectory, representation);
+        Stream<InputSource> availableSources = Util.getAvailableSources(resolvers, representation);
         InputSource inputSource = availableSources.findFirst()
                 .orElseGet(() -> Util.createSource(resolvers, representation));
         Source source = inputSource.source();
@@ -62,7 +55,7 @@ public class Morph {
     public <T> void save(@NotNull T value) {
         ConfigRepresentation representation = Registry.get(value.getClass());
         ObjectComments fileComments = Registry.getInstance(value);
-        Stream<InputSource> availableSources = Util.getAvailableSources(resolvers, workingDirectory, representation);
+        Stream<InputSource> availableSources = Util.getAvailableSources(resolvers, representation);
 
         OutputSource source = availableSources.findFirst()
                 .map(Util::createOutputFromInput)
@@ -74,7 +67,7 @@ public class Morph {
         ObjectComments mergedComments = Comments.merge(fileComments, representation.getComments(), mergeStrategy);
 
         try (OutputStream out = source.output().get()) {
-            source.provider().save(out, value, indentation, mergedComments);
+            source.provider().save(out, value, mergedComments);
         } catch (Throwable e) {
             throw new ConfigException("Failed to save config" + source.source().path(), e);
         }

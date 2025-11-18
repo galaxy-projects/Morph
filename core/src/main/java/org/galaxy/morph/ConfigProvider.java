@@ -13,9 +13,11 @@ public interface ConfigProvider {
 
     boolean supportsExtension(@NotNull String extension);
 
+    void setup(int indentation);
+
     <T> @NotNull CommentedResult<T> load(@NotNull InputStream in, @NotNull Class<T> type) throws Throwable;
 
-    <T> void save(@NotNull OutputStream out, @NotNull T value, int indentation, @NotNull ObjectComments comments)
+    <T> void save(@NotNull OutputStream out, @NotNull T value, @NotNull ObjectComments comments)
             throws Throwable;
 
 }
