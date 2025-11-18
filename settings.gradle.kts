@@ -7,3 +7,5 @@
  */
 
 rootProject.name = "Morph"
+
+include("core")
