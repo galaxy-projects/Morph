@@ -9,4 +9,4 @@
 rootProject.name = "Morph"
 
 include("core")
-include("fasterxml", "fasterxml:json", "fasterxml:yaml")
+include("fasterxml", "fasterxml:json", "fasterxml:yaml", "fasterxml:toml")
