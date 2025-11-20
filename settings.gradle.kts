@@ -9,7 +9,4 @@
 rootProject.name = "Morph"
 
 include("core")
-include("tools", "tools:json")
-include("tools:yaml")
-include("tools:toml")
-include("tools:xml")
+include("tools", "tools:json", "tools:yaml", "tools:toml", "tools:xml")
