@@ -1,4 +1,4 @@
-package org.galaxy.morph.providers.yaml;
+package org.galaxy.morph.providers.tools.yaml;
 
 import com.google.auto.service.AutoService;
 import org.galaxy.morph.ConfigProvider;
