@@ -11,3 +11,4 @@ rootProject.name = "Morph"
 include("core")
 include("tools", "tools:json")
 include("tools:yaml")
+include("tools:toml")
