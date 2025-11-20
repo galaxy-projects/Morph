@@ -9,3 +9,4 @@
 rootProject.name = "Morph"
 
 include("core")
+include("tools")
