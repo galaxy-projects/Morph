@@ -1,7 +1,3 @@
-plugins {
-    alias(libs.plugins.shadowJar)
-}
-
 dependencies {
     compileOnly(libs.autoservice)
     annotationProcessor(libs.autoservice)
@@ -11,12 +7,4 @@ dependencies {
     compileOnly(libs.snakeyaml)
 
     compileOnly(project(":core"))
-}
-
-tasks.shadowJar {
-    archiveClassifier.set(null as String?)
-}
-
-tasks.build {
-    dependsOn(tasks.shadowJar)
 }
