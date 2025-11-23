@@ -9,6 +9,7 @@ fasterxml = "2.20.1"
 tools-jackson = "3.0.2"
 shadowjar = "9.2.2"
 snakeyaml = "2.5"
+gson = "2.13.2"
 
 [plugins]
 shadowJar = { id = "com.gradleup.shadow", version.ref = "shadowjar" }
@@ -31,6 +32,7 @@ tools-dataformat-toml = { group = "tools.jackson.dataformat", name = "jackson-da
 tools-dataformat-xml = { group = "tools.jackson.dataformat", name = "jackson-dataformat-xml", version.ref = "tools-jackson" }
 
 snakeyaml = { group = "org.yaml", name = "snakeyaml", version.ref = "snakeyaml" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
 junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter" }
