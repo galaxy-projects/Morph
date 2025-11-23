@@ -11,3 +11,4 @@ rootProject.name = "Morph"
 include("core")
 include("fasterxml", "fasterxml:json", "fasterxml:yaml", "fasterxml:toml")
 include("tools", "tools:json", "tools:yaml", "tools:toml", "tools:xml")
+include("snakeyaml")
