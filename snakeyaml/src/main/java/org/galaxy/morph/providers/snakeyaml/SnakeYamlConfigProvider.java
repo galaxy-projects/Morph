@@ -6,11 +6,8 @@ import org.galaxy.morph.representation.CommentedResult;
 import org.galaxy.morph.representation.ObjectComments;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
-import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,18 +18,20 @@ import java.nio.charset.StandardCharsets;
 @AutoService(ConfigProvider.class)
 public class SnakeYamlConfigProvider implements ConfigProvider {
 
-    private final Yaml yaml;
+    private Yaml yaml;
 
     public SnakeYamlConfigProvider() {
-        yaml = new Yaml(
-                new Constructor(new LoaderOptions()),
-                new Representer(new DumperOptions()),
-                new DumperOptions(),
-                new LoaderOptions());
+
     }
 
     @Override
     public void setup(int indentation) {
+        DumperOptions dumpOptions = new DumperOptions();
+        dumpOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        dumpOptions.setPrettyFlow(true);
+        dumpOptions.setIndent(indentation);
+
+        yaml = new Yaml(dumpOptions);
         yaml.setBeanAccess(BeanAccess.FIELD);
     }
 
