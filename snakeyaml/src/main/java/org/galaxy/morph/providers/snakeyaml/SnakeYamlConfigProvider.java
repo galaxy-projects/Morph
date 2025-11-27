@@ -2,8 +2,6 @@ package org.galaxy.morph.providers.snakeyaml;
 
 import com.google.auto.service.AutoService;
 import org.galaxy.morph.ConfigProvider;
-import org.galaxy.morph.representation.CommentedResult;
-import org.galaxy.morph.representation.ObjectComments;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -20,9 +18,7 @@ public class SnakeYamlConfigProvider implements ConfigProvider {
 
     private Yaml yaml;
 
-    public SnakeYamlConfigProvider() {
-
-    }
+    public SnakeYamlConfigProvider() {}
 
     @Override
     public void setup(int indentation) {
@@ -46,15 +42,12 @@ public class SnakeYamlConfigProvider implements ConfigProvider {
     }
 
     @Override
-    public @NotNull <T> CommentedResult<T> load(@NotNull InputStream in, @NotNull Class<T> type) throws Throwable {
-        T value = yaml.loadAs(new InputStreamReader(in, StandardCharsets.UTF_8), type);
-
-        return new CommentedResult<>(value, null);
+    public @NotNull <T> T load(@NotNull InputStream in, @NotNull Class<T> type) throws Throwable {
+        return yaml.loadAs(new InputStreamReader(in, StandardCharsets.UTF_8), type);
     }
 
     @Override
-    public <T> void save(@NotNull OutputStream out, @NotNull T value, @NotNull ObjectComments comments)
-            throws Throwable {
+    public <T> void save(@NotNull OutputStream out, @NotNull T value) throws Throwable {
         yaml.dump(value, new OutputStreamWriter(out, StandardCharsets.UTF_8));
     }
 }

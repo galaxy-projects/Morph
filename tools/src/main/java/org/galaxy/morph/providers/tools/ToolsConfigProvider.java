@@ -1,8 +1,6 @@
 package org.galaxy.morph.providers.tools;
 
 import org.galaxy.morph.ConfigProvider;
-import org.galaxy.morph.representation.CommentedResult;
-import org.galaxy.morph.representation.ObjectComments;
 import org.jetbrains.annotations.NotNull;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.util.DefaultIndenter;
@@ -45,15 +43,14 @@ public abstract class ToolsConfigProvider implements ConfigProvider {
     }
 
     @Override
-    public @NotNull <T> CommentedResult<T> load(@NotNull InputStream in, @NotNull Class<T> type) throws Throwable {
+    public @NotNull <T> T load(@NotNull InputStream in, @NotNull Class<T> type) throws Throwable {
         try (JsonParser parser = mapper.createParser(in)) {
-            return new CommentedResult<>(mapper.readValue(parser, type), null);
+            return mapper.readValue(parser, type);
         }
     }
 
     @Override
-    public <T> void save(@NotNull OutputStream out, @NotNull T value, @NotNull ObjectComments comments)
-            throws Throwable {
+    public <T> void save(@NotNull OutputStream out, @NotNull T value) throws Throwable {
         mapper.writerWithDefaultPrettyPrinter().writeValue(out, value);
     }
 }

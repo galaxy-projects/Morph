@@ -1,8 +1,8 @@
 package org.galaxy.morph;
 
-import org.galaxy.morph.annotations.CommentMergeStrategy;
 import org.galaxy.morph.exceptions.ConfigException;
-import org.galaxy.morph.representation.*;
+import org.galaxy.morph.representation.ConfigRepresentation;
+import org.galaxy.morph.representation.Registry;
 import org.galaxy.morph.source.Resource;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,14 +13,11 @@ import java.util.List;
 public class Morph {
 
 
-    private final @NotNull CommentMergeStrategy defaultCommentStrategy;
     private final @NotNull List<@NotNull ConfigProvider> providers;
     private final @NotNull List<@NotNull ConfigSourceResolver> resolvers;
 
-    Morph(@NotNull CommentMergeStrategy defaultCommentStrategy,
-          @NotNull List<@NotNull ConfigProvider> providers,
+    Morph(@NotNull List<@NotNull ConfigProvider> providers,
           @NotNull List<@NotNull ConfigSourceResolver> resolvers) {
-        this.defaultCommentStrategy = defaultCommentStrategy;
         this.providers = providers;
         this.resolvers = resolvers;
     }
@@ -41,10 +38,7 @@ public class Morph {
         }
 
         try (InputStream in = resource.input().get()) {
-            CommentedResult<T> result = resource.provider().load(in, type);
-
-            Registry.setInstance(result.getValue(), result.getComments());
-            return result.getValue();
+            return resource.provider().load(in, type);
         } catch (Throwable e) {
             throw new ConfigException("Failed to load config" + resource.source().path(), e);
         }
@@ -52,16 +46,11 @@ public class Morph {
 
     public <T> void save(@NotNull T value) {
         ConfigRepresentation representation = Registry.get(value.getClass());
-        ObjectComments fileComments = Registry.getInstance(value);
         Resource resource = Util.getAvailableResource(resolvers, providers, representation)
                 .orElseGet(() -> Util.createResource(resolvers, providers, representation));
 
-        CommentMergeStrategy mergeStrategy = representation.getClassMergeStrategy() != null ?
-                representation.getClassMergeStrategy() : defaultCommentStrategy;
-        ObjectComments mergedComments = Comments.merge(fileComments, representation.getComments(), mergeStrategy);
-
         try (OutputStream out = resource.output().get()) {
-            resource.provider().save(out, value, mergedComments);
+            resource.provider().save(out, value);
         } catch (Throwable e) {
             throw new ConfigException("Failed to save config" + resource.source().path(), e);
         }

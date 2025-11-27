@@ -1,6 +1,5 @@
 package org.galaxy.morph;
 
-import org.galaxy.morph.annotations.CommentMergeStrategy;
 import org.galaxy.morph.logger.InternalLogger;
 import org.galaxy.morph.logger.InternalLoggerFactory;
 import org.jetbrains.annotations.NotNull;
@@ -18,14 +17,12 @@ public class MorphBuilder {
     private static final InternalLogger LOGGER = InternalLoggerFactory.getLogger(Morph.class);
 
     private @Nullable Path workingDirectory;
-    private @Nullable CommentMergeStrategy defaultCommentStrategy;
     private int indentation;
     private @Nullable List<ConfigProvider> providers;
     private @Nullable List<ConfigSourceResolver> resolvers;
 
     MorphBuilder() {
         workingDirectory = Paths.get(".");
-        defaultCommentStrategy = CommentMergeStrategy.MERGE;
         indentation = 2;
         providers = null;
         resolvers = null;
@@ -33,12 +30,6 @@ public class MorphBuilder {
 
     public @NotNull MorphBuilder workingDirectory(@NotNull Path workingDirectory) {
         this.workingDirectory = workingDirectory;
-        return this;
-    }
-
-    public @NotNull MorphBuilder defaultCommentStrategy(
-            @NotNull CommentMergeStrategy defaultCommentStrategy) {
-        this.defaultCommentStrategy = defaultCommentStrategy;
         return this;
     }
 
@@ -59,7 +50,6 @@ public class MorphBuilder {
 
     public @NotNull Morph build() {
         Objects.requireNonNull(workingDirectory, "workingDirectory cannot be null");
-        Objects.requireNonNull(defaultCommentStrategy, "defaultCommentStrategy cannot be null");
         if (indentation <= 0)
             throw new IllegalArgumentException("Indentation cannot be negative");
 
@@ -80,7 +70,7 @@ public class MorphBuilder {
         resolvers.forEach(resolver -> resolver.setup(workingDirectory));
         providers.forEach(provider -> provider.setup(indentation));
 
-        return new Morph(defaultCommentStrategy, providers, resolvers);
+        return new Morph(providers, resolvers);
     }
 
     private static <T> List<T> loadServices(Class<T> type) {

@@ -6,8 +6,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
 import org.galaxy.morph.ConfigProvider;
-import org.galaxy.morph.representation.CommentedResult;
-import org.galaxy.morph.representation.ObjectComments;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -43,15 +41,12 @@ public class GsonConfigProvider implements ConfigProvider {
     public void setup(int indentation) {}
 
     @Override
-    public @NotNull <T> CommentedResult<T> load(@NotNull InputStream in, @NotNull Class<T> type) throws Throwable {
-        T result = gson.fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), type);
-
-        return new CommentedResult<>(result, null);
+    public @NotNull <T> T load(@NotNull InputStream in, @NotNull Class<T> type) throws Throwable {
+        return gson.fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), type);
     }
 
     @Override
-    public <T> void save(@NotNull OutputStream out, @NotNull T value, @NotNull ObjectComments comments)
-            throws Throwable {
+    public <T> void save(@NotNull OutputStream out, @NotNull T value) throws Throwable {
         gson.toJson(value, value.getClass(), new OutputStreamWriter(out, StandardCharsets.UTF_8));
     }
 }
