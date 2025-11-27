@@ -2,17 +2,13 @@ package org.galaxy.morph;
 
 import org.galaxy.morph.annotations.CommentMergeStrategy;
 import org.galaxy.morph.exceptions.ConfigException;
-import org.galaxy.morph.exceptions.ProviderNotFoundException;
 import org.galaxy.morph.representation.*;
-import org.galaxy.morph.source.InputSource;
-import org.galaxy.morph.source.OutputSource;
-import org.galaxy.morph.source.Source;
+import org.galaxy.morph.source.Resource;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class Morph {
 
@@ -31,45 +27,43 @@ public class Morph {
 
     public <T> @NotNull T load(@NotNull Class<T> type) {
         ConfigRepresentation representation = Registry.get(type);
-        Stream<InputSource> availableSources = Util.getAvailableSources(resolvers, representation);
-        InputSource inputSource = availableSources.findFirst()
-                .orElseGet(() -> Util.createSource(resolvers, representation));
-        Source source = inputSource.source();
+        Resource resource = Util.getAvailableResource(resolvers, providers, representation).orElse(null);
 
-        ConfigProvider provider = providers.stream()
-                .filter(p -> p.supportsExtension(source.extension()))
-                .findFirst()
-                .orElseThrow(
-                        () -> new ProviderNotFoundException("No provider found for extension " + source.extension()));
+        if (resource == null) {
+            try {
+                T value = type.getDeclaredConstructor().newInstance();
 
-        try (InputStream in = inputSource.input().get()) {
-            CommentedResult<T> result = provider.load(in, type);
+                save(value);
+                return value;
+            } catch (Throwable e) {
+                throw new ConfigException("Failed to instantiate new config of type " + type.getName(), e);
+            }
+        }
+
+        try (InputStream in = resource.input().get()) {
+            CommentedResult<T> result = resource.provider().load(in, type);
 
             Registry.setInstance(result.getValue(), result.getComments());
             return result.getValue();
         } catch (Throwable e) {
-            throw new ConfigException("Failed to load config" + source.path(), e);
+            throw new ConfigException("Failed to load config" + resource.source().path(), e);
         }
     }
 
     public <T> void save(@NotNull T value) {
         ConfigRepresentation representation = Registry.get(value.getClass());
         ObjectComments fileComments = Registry.getInstance(value);
-        Stream<InputSource> availableSources = Util.getAvailableSources(resolvers, representation);
+        Resource resource = Util.getAvailableResource(resolvers, providers, representation)
+                .orElseGet(() -> Util.createResource(resolvers, providers, representation));
 
-        OutputSource source = availableSources.findFirst()
-                .map(Util::createOutputFromInput)
-                .orElseGet(() -> Util.createOutputSource(resolvers, providers, representation));
         CommentMergeStrategy mergeStrategy = representation.getClassMergeStrategy() != null ?
                 representation.getClassMergeStrategy() : defaultCommentStrategy;
-
-
         ObjectComments mergedComments = Comments.merge(fileComments, representation.getComments(), mergeStrategy);
 
-        try (OutputStream out = source.output().get()) {
-            source.provider().save(out, value, mergedComments);
+        try (OutputStream out = resource.output().get()) {
+            resource.provider().save(out, value, mergedComments);
         } catch (Throwable e) {
-            throw new ConfigException("Failed to save config" + source.source().path(), e);
+            throw new ConfigException("Failed to save config" + resource.source().path(), e);
         }
     }
 

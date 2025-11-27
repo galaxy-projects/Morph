@@ -4,45 +4,44 @@ import org.galaxy.morph.exceptions.ProviderNotFoundException;
 import org.galaxy.morph.exceptions.ResolverNotFoundException;
 import org.galaxy.morph.representation.ConfigRepresentation;
 import org.galaxy.morph.source.ExtensionConfigProvider;
-import org.galaxy.morph.source.InputSource;
-import org.galaxy.morph.source.OutputSource;
+import org.galaxy.morph.source.Resource;
 import org.galaxy.morph.source.Source;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 class Util {
 
     private Util() {}
 
-    static @NotNull InputSource createSource(@NotNull List<ConfigSourceResolver> resolvers,
-                                             @NotNull ConfigRepresentation representation) {
-        ConfigSourceResolver resolver = resolvers.stream()
-                .filter(ConfigSourceResolver::canCreate)
-                .findFirst()
-                .orElseThrow(() -> new ResolverNotFoundException("No resolver can create source"));
-
-        return resolver.createSource(representation);
-    }
-
-    static @NotNull Stream<InputSource> getAvailableSources(@NotNull List<ConfigSourceResolver> resolvers,
+    static @NotNull Optional<Resource> getAvailableResource(@NotNull List<ConfigSourceResolver> resolvers,
+                                                            @NotNull List<ConfigProvider> providers,
                                                             @NotNull ConfigRepresentation representation) {
         Set<String> supportedExtensions = representation.getSupportedExtensions();
 
-        Stream<InputSource> availableSources = resolvers.stream()
-                .map(resolver -> resolver.resolve(representation.getName()))
-                .filter(Optional::isPresent)
-                .map(Optional::get);
+        Stream<Resource> availableSources = resolvers.stream()
+                .flatMap(resolver -> resolver.resolve(providers, representation.getName()));
 
         if (supportedExtensions != null)
             availableSources = availableSources.filter(
                     source -> supportedExtensions.contains(source.source().extension()));
-        return availableSources;
+        return availableSources.findFirst();
+    }
+
+    static @NotNull Resource createResource(@NotNull List<ConfigSourceResolver> resolvers,
+                                            @NotNull List<ConfigProvider> providers,
+                                            @NotNull ConfigRepresentation representation) {
+        ConfigSourceResolver resolver = resolvers.stream()
+                .filter(ConfigSourceResolver::canCreate)
+                .findFirst()
+                .orElseThrow(() -> new ResolverNotFoundException("No resolver can create source"));
+        ExtensionConfigProvider extensionConfigProvider = getExtensionConfigProvider(providers, representation);
+        Source target = new Source(representation.getName(), extensionConfigProvider.extension());
+
+        return resolver.createSource(target, extensionConfigProvider.provider());
     }
 
     static @NotNull ExtensionConfigProvider getExtensionConfigProvider(@NotNull List<ConfigProvider> providers,
@@ -63,29 +62,5 @@ class Util {
             }
         }
         throw new ProviderNotFoundException("No provider found for " + representation.getName());
-    }
-
-    static @NotNull Supplier<OutputStream> createOutputSupplier(@NotNull ConfigSourceResolver resolver,
-                                                                @NotNull Source source) {
-        return () -> resolver.createOutput(source);
-    }
-
-    static @NotNull OutputSource createOutputFromInput(@NotNull InputSource input) {
-        Supplier<OutputStream> output = createOutputSupplier(input.resolver(), input.source());
-
-        return new OutputSource(input.source(), input.provider(), output);
-    }
-
-    static @NotNull OutputSource createOutputSource(@NotNull List<ConfigSourceResolver> resolvers,
-                                                    @NotNull List<ConfigProvider> providers,
-                                                    @NotNull ConfigRepresentation representation) {
-        ConfigSourceResolver resolver = resolvers.stream()
-                .filter(ConfigSourceResolver::canCreate)
-                .findFirst()
-                .orElseThrow(() -> new ResolverNotFoundException("No resolver found"));
-        ExtensionConfigProvider extensionConfigProvider = getExtensionConfigProvider(providers, representation);
-        Source target = new Source(representation.getName(), extensionConfigProvider.extension());
-
-        return new OutputSource(target, extensionConfigProvider.provider(), createOutputSupplier(resolver, target));
     }
 }
