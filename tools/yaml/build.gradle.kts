@@ -10,3 +10,14 @@ dependencies {
     implementation(project(":tools"))
     compileOnly(project(":core"))
 }
+
+
+publishing {
+    publications {
+        create<MavenPublication>("gpr") {
+            groupId = "org.galaxy.morph.providers.tools"
+            artifactId = "morph-provider-tools-yaml"
+            from(components["java"])
+        }
+    }
+}

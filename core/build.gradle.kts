@@ -10,3 +10,12 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("gpr") {
+            artifactId = "morph-core"
+            from(components["java"])
+        }
+    }
+}

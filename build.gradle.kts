@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    `maven-publish`
 }
 
 group = "org.galaxy.morph"
@@ -7,6 +8,7 @@ version = "0.0.1"
 
 allprojects {
     apply(plugin = "java-library")
+    apply(plugin = "maven-publish")
 
     group = rootProject.group
     version = rootProject.version
@@ -25,5 +27,18 @@ allprojects {
 
     repositories {
         mavenCentral()
+    }
+
+    publishing {
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/galaxy-projects/Morph")
+                credentials {
+                    username = System.getenv("GITHUB_USER")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
     }
 }

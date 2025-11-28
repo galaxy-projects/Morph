@@ -8,3 +8,13 @@ dependencies {
 
     compileOnly(project(":core"))
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("gpr") {
+            groupId = "org.galaxy.morph.providers"
+            artifactId = "morph-provider-gson"
+            from(components["java"])
+        }
+    }
+}

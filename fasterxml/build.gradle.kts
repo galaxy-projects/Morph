@@ -21,3 +21,13 @@ dependencies {
 
     compileOnly(project(":core"))
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("gpr") {
+            groupId = "org.galaxy.morph.providers.fasterxml"
+            artifactId = "morph-provider-fasterxml-base"
+            from(components["java"])
+        }
+    }
+}

@@ -38,17 +38,12 @@ dependencies {
     compileOnly(project(":core"))
 }
 
-/**
- * dependencies {
- *     compileOnly(libs.autoservice)
- *     annotationProcessor(libs.autoservice)
- *
- *     compileOnly(libs.annotations)
- *
- *     compileOnly(libs.bundles.fasterxml)
- *     compileOnly(libs.fasterxml.dataformat.xml)
- *
- *     implementation(project(":fasterxml"))
- *     compileOnly(project(":core"))
- * }
- */
+publishing {
+    publications {
+        create<MavenPublication>("gpr") {
+            groupId = "org.galaxy.morph.providers.tools"
+            artifactId = "morph-provider-tools-base"
+            from(components["java"])
+        }
+    }
+}
