@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "org.galaxy.morph"
-version = "0.0.1"
+version = System.getenv("MORPH_VERSION") ?: "0.0.1"
 
 allprojects {
     apply(plugin = "java-library")
@@ -35,7 +35,7 @@ allprojects {
                 name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/galaxy-projects/Morph")
                 credentials {
-                    username = System.getenv("GITHUB_USER")
+                    username = System.getenv("GITHUB_ACTOR")
                     password = System.getenv("GITHUB_TOKEN")
                 }
             }
